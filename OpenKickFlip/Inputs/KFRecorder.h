@@ -28,6 +28,9 @@
  */
 @interface KFRecorder : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, KFEncoderDelegate, KFHLSUploaderDelegate, CLLocationManagerDelegate>
 
+
+@property (nonatomic, strong) KFS3Stream* s3Configuration;
+
 @property (nonatomic, strong) AVCaptureSession* session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer* previewLayer;
 @property (nonatomic, strong) AVCaptureVideoDataOutput* videoOutput;

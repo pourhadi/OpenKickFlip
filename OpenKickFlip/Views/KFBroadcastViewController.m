@@ -8,12 +8,19 @@
 
 #import "KFBroadcastViewController.h"
 #import "KFRecorder.h"
-#import "KFAPIClient.h"
-#import "KFUser.h"
 #import "KFLog.h"
 #import "PureLayout.h"
 
 @implementation KFBroadcastViewController
+
+- (void)recorder:(KFRecorder *)recorder didUpdateUploadSpeed:(double)uploadSpeed{
+    // TODO
+}
+
+- (void)recorderDidFinishUploading:(KFRecorder *)recorder{
+    // TODO
+}
+
 
 - (id) init {
     if (self = [super init]) {
@@ -112,14 +119,7 @@
 }
 
 - (void) shareButtonPressed:(id)sender {
-    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.recorder.stream.kickflipURL] applicationActivities:nil];
-    
-    UIActivityViewControllerCompletionHandler completionHandler = ^(NSString *activityType, BOOL completed) {
-        DDLogInfo(@"share activity: %@", activityType);
-    };
-    activityViewController.completionHandler = completionHandler;
-    
-    [self presentViewController:activityViewController animated:YES completion:nil];
+
 }
 
 - (void)viewDidLoad
@@ -243,7 +243,12 @@
         if (reason) {
             [errorMsg appendFormat:@" %@", reason];
         }
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Stream Start Error" message:errorMsg delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+        
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Stream Start Error"
+                                                            message:errorMsg
+                                                           delegate:nil
+                                                  cancelButtonTitle:nil
+                                                  otherButtonTitles:@"OK", nil];
         [alertView show];
         self.recordButton.isRecording = NO;
     } else {
@@ -254,17 +259,17 @@
 
 - (void) recorder:(KFRecorder *)recorder streamReadyAtURL:(NSURL *)url {
     self.shareButton.enabled = YES;
-    if (_readyBlock) {
-        _readyBlock(recorder.stream);
+    if (self.readyBlock) {
+        self.readyBlock(recorder.stream);
     }
 }
 
 - (void) recorderDidFinishRecording:(KFRecorder *)recorder error:(NSError *)error {
-    if (_completionBlock) {
+    if (self.completionBlock) {
         if (error) {
-            _completionBlock(NO, error);
+            self.completionBlock(NO, error);
         } else {
-            _completionBlock(YES, nil);
+            self.completionBlock(YES, nil);
         }
     }
     [self dismissViewControllerAnimated:YES completion:nil];

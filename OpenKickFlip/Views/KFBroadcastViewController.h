@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "KFRecorder.h"
-#import "Kickflip.h"
+#import "OpenKickFlip.h"
 #import "KFRecordButton.h"
 
 /**

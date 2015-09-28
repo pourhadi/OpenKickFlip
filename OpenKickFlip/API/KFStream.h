@@ -30,12 +30,6 @@ extern NSString * const KFStreamTypeKey;
 @interface KFStream : MTLModel <MTLJSONSerializing>
 
 /**
- *  Stream owner, maps to a KFUser
- *  @see KFUser
- */
-@property (nonatomic, strong) NSString *username;
-
-/**
  *  Stream UUID (unique identifier)
  */
 @property (nonatomic, strong, readonly) NSString *streamID;
@@ -54,11 +48,6 @@ extern NSString * const KFStreamTypeKey;
  *  Location of raw .m3u8 HLS manifest for use in native media players
  */
 @property (nonatomic, strong, readonly) NSURL *streamURL;
-
-/**
- *  kickflip.io URL for public consumption on the web
- */
-@property (nonatomic, strong, readonly) NSURL *kickflipURL;
 
 /**
  *  When recording was started

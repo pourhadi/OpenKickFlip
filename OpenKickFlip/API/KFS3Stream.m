@@ -7,7 +7,6 @@
 //
 
 #import "KFS3Stream.h"
-#import "KFUser.h"
 #import "KFDateUtils.h"
 
 NSString * const KFS3StreamType = @"HLS";
@@ -24,6 +23,19 @@ static NSString * const KFS3StreamAWSPrefix = @"aws_prefix";
 @end
 
 @implementation KFS3Stream
+
+static const NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
++(NSString *) randomStringWithLength: (int) len {
+    
+    NSMutableString *randomString = [NSMutableString stringWithCapacity: len];
+    
+    for (int i=0; i<len; i++) {
+        [randomString appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform([letters length])]];
+    }
+    
+    return randomString;
+}
 
 + (NSDictionary*) JSONKeyPathsByPropertyKey {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[super JSONKeyPathsByPropertyKey]];

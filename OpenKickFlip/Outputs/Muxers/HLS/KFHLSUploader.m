@@ -8,9 +8,7 @@
 
 #import "KFHLSUploader.h"
 #import "KFS3Stream.h"
-#import "KFUser.h"
 #import "KFLog.h"
-#import "KFAPIClient.h"
 #import "KFAWSCredentialsProvider.h"
 #import "KFHLSWriter.h"
 #import "KFRecorder.h"
@@ -81,7 +79,8 @@ static NSString * const kKFS3Key = @"kKFS3Key";
         self.transferManager = [AWSS3TransferManager S3TransferManagerForKey:kKFS3TransferManagerKey];
         self.s3 = [AWSS3 S3ForKey:kKFS3Key];
         
-        self.manifestGenerator = [[KFHLSManifestGenerator alloc] initWithTargetDuration:kHLSSegmentDurationSeconds playlistType:KFHLSManifestPlaylistTypeVOD];
+        self.manifestGenerator = [[KFHLSManifestGenerator alloc] initWithTargetDuration:kHLSSegmentDurationSeconds
+                                                                           playlistType:KFHLSManifestPlaylistTypeVOD];
     }
     return self;
 }
@@ -418,13 +417,13 @@ static NSString * const kKFS3Key = @"kKFS3Key";
                 DDLogError(@"Error removing thumbnail: %@", error.description);
             }
             self.stream.thumbnailURL = [self urlWithFileName:fileName];
-            [[KFAPIClient sharedClient] updateMetadataForStream:self.stream callbackBlock:^(KFStream *updatedStream, NSError *error) {
-                if (error) {
-                    DDLogError(@"Error updating stream thumbnail: %@", error);
-                } else {
-                    DDLogDebug(@"Updated stream thumbnail: %@", updatedStream.thumbnailURL);
-                }
-            }];
+//            [[KFAPIClient sharedClient] updateMetadataForStream:self.stream callbackBlock:^(KFStream *updatedStream, NSError *error) {
+//                if (error) {
+//                    DDLogError(@"Error updating stream thumbnail: %@", error);
+//                } else {
+//                    DDLogDebug(@"Updated stream thumbnail: %@", updatedStream.thumbnailURL);
+//                }
+//            }];
         }
     });
 }
