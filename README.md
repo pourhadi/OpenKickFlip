@@ -1,4 +1,4 @@
-# OpenKickflip SDK for iOS
+# OpenKickFlip SDK for iOS
 
 This is a fork from the original [Kickflip](http://kickflip.io) commertial platform.
 
