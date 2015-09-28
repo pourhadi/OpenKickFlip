@@ -4,7 +4,7 @@ This is a fork from the original [Kickflip](http://kickflip.io) opensource proje
 
 OpenKickFlip taks the best of the awesome Kickflip and allows you to directly upload the streaming to your own s3 bucket.
 
-OpenkickFlip provides a complete video broadcasting solution for your iOS application. You can use our pre-built `KFBroadcastViewController` to stream live video with one line of code. 
+OpenKickFlip provides a complete video broadcasting solution for your iOS application. You can use our pre-built `KFBroadcastViewController` to stream live video with one line of code. 
 
 ## Quickstart
 
