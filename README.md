@@ -1,6 +1,6 @@
 # OpenKickFlip SDK for iOS
 
-This is a fork from the original [Kickflip](http://kickflip.io) commertial platform.
+This is a fork from the original [Kickflip](http://kickflip.io) opensource project and commercial platform.
 
 OpenKickFlip taks the best of the awesome Kickflip and allows you to directly upload the streaming to your own s3 bucket.
 
