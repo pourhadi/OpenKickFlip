@@ -46,7 +46,7 @@ OpenKickFlip provides a complete video broadcasting solution for your iOS applic
 ## How do I get an AWS S3 Temporal Upload Token?
 
 Using the [aws-sdk-ruby](https://github.com/aws/aws-sdk-ruby) you can do this by
-```
+```ruby
     Aws::STS::Client.new(region: '***REGION NAME***', credentials: Aws::Credentials.new('***AWS IAM TOKEN WITH ACCESS TO THE BUCKET***', '***AWS IAM TOKEN SECRET***')).get_session_token(duration_seconds: 1.day)
 ```
 
