@@ -19,7 +19,9 @@ static NSString * const KFS3StreamAWSRegionKey = @"aws_region";
 static NSString * const KFS3StreamAWSPrefix = @"aws_prefix";
 
 
-@interface KFS3Stream()
+@interface KFS3Stream() {
+    NSString *_streamID;
+}
 @end
 
 @implementation KFS3Stream
@@ -55,6 +57,17 @@ static const NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS
     } reverseBlock:^(NSDate *date) {
         return [[KFDateUtils utcDateFormatter] stringFromDate:date];
     }];
+}
+
+- (NSString*)streamID {
+    if (!_streamID) {
+        _streamID = [[[NSUUID alloc] init] UUIDString];
+    }
+    return _streamID;
+}
+
+- (NSURL*)uploadURL {
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://s3.amazonaws.com/%@", self.bucketName]];
 }
 
 @end

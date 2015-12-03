@@ -20,12 +20,13 @@
 
 @interface KFRecorder() {
     AVAssetWriter *_assetWriter;
-    //    AVAssetWriterInput *_assetWriterAudioIn;
+        AVAssetWriterInput *_assetWriterAudioIn;
     AVAssetWriterInput *_assetWriterVideoIn;
     dispatch_queue_t _movieWritingQueue;
-    //    BOOL _readyToRecordAudio;
+        BOOL _readyToRecordAudio;
     BOOL _readyToRecordVideo;
     NSURL *_outputFileURL;
+    BOOL _withAudio;
 }
 
 @property (nonatomic) NSString *h264Profile;
@@ -48,9 +49,10 @@
     [self destroySession];
 }
 
-- (id) init {
+- (id) initWithAudio:(BOOL)withAudio {
     if (self = [super init]) {
         
+        _withAudio = withAudio;
         _h264Profile = AVVideoProfileLevelH264BaselineAutoLevel;
         _resolutionWidth = 300;
         _resolutionHeight = 300;
@@ -69,21 +71,21 @@
     return self;
 }
 
-//- (AVCaptureDevice *)audioDevice
-//{
-//    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
-//    if ([devices count] > 0)
-//        return [devices objectAtIndex:0];
-//
-//    return nil;
-//}
+- (AVCaptureDevice *)audioDevice
+{
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeAudio];
+    if ([devices count] > 0)
+        return [devices objectAtIndex:0];
+
+    return nil;
+}
 
 - (void) setupSession {
     _session = [[AVCaptureSession alloc] init];
     _movieWritingQueue = dispatch_queue_create("Movie Writing Queue", DISPATCH_QUEUE_SERIAL);
     _session.automaticallyConfiguresApplicationAudioSession = NO;
     [self setupVideoCapture];
-    //    [self setupAudioCapture];
+    if (_withAudio) { [self setupAudioCapture]; }
     
     // start capture and a preview layer
     [_session startRunning];
@@ -109,12 +111,12 @@
     [[NSFileManager defaultManager] createDirectoryAtPath:hlsDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
     self.hlsWriter = [[KFHLSWriter alloc] initWithDirectoryPath:hlsDirectoryPath];
     [_hlsWriter addVideoStreamWithWidth:self.videoWidth height:self.videoHeight];
-    //    [_hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate];
+    if (_withAudio) { [_hlsWriter addAudioStreamWithSampleRate:self.audioSampleRate]; }
     
 }
 
 - (void) setupEncoders {
-    //    self.audioSampleRate = 44100;
+    self.audioSampleRate = 44100;
     
     if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)) {
         self.videoWidth = self.resolutionWidth;
@@ -124,16 +126,18 @@
         self.videoHeight = self.resolutionHeight;
     }
     
-    //    int audioBitrate = 56 * 1000; // 56 Kbps
+    int audioBitrate = 56 * 1000; // 56 Kbps
     int initialBitrate = self.initialBitrate;
-    int videoBitrate = initialBitrate;// - audioBitrate;
+    int videoBitrate = _withAudio ? initialBitrate - audioBitrate : initialBitrate;
     
     _h264Encoder = [[KFH264Encoder alloc] initWithBitrate:videoBitrate width:self.videoWidth height:self.videoHeight];
     _h264Encoder.delegate = self;
     
-    //    _aacEncoder = [[KFAACEncoder alloc] initWithBitrate:audioBitrate sampleRate:self.audioSampleRate channels:1];
-    //    _aacEncoder.delegate = self;
-    //    _aacEncoder.addADTSHeader = YES;
+    if (_withAudio) {
+        _aacEncoder = [[KFAACEncoder alloc] initWithBitrate:audioBitrate sampleRate:self.audioSampleRate channels:1];
+        _aacEncoder.delegate = self;
+        _aacEncoder.addADTSHeader = YES;
+    }
 }
 
 - (void) setupAudioCapture {
@@ -184,45 +188,45 @@
     _videoConnection = [_videoOutput connectionWithMediaType:AVMediaTypeVideo];
     _videoConnection.videoOrientation = [self avOrientationForInterfaceOrientation:[UIApplication sharedApplication].statusBarOrientation];
 }
-//
-//- (BOOL)setupAssetWriterAudioInput:(CMFormatDescriptionRef)currentFormatDescription {
-//    // Create audio output settings dictionary which would be used to configure asset writer input
-//    const AudioStreamBasicDescription *currentASBD = CMAudioFormatDescriptionGetStreamBasicDescription(currentFormatDescription);
-//    size_t aclSize = 0;
-//    const AudioChannelLayout *currentChannelLayout = CMAudioFormatDescriptionGetChannelLayout(currentFormatDescription, &aclSize);
-//
-//    NSData *currentChannelLayoutData = nil;
-//    // AVChannelLayoutKey must be specified, but if we don't know any better give an empty data and let AVAssetWriter decide.
-//    if ( currentChannelLayout && aclSize > 0 )
-//        currentChannelLayoutData = [NSData dataWithBytes:currentChannelLayout length:aclSize];
-//    else
-//        currentChannelLayoutData = [NSData data];
-//
-//    NSDictionary *audioCompressionSettings = @{AVFormatIDKey : [NSNumber numberWithInteger:kAudioFormatMPEG4AAC],
-//                                               AVSampleRateKey : [NSNumber numberWithFloat:currentASBD->mSampleRate],
-//                                               AVEncoderBitRatePerChannelKey : [NSNumber numberWithInt:64000],
-//                                               AVNumberOfChannelsKey : [NSNumber numberWithInteger:currentASBD->mChannelsPerFrame],
-//                                               AVChannelLayoutKey : currentChannelLayoutData};
-//
-//    if ([_assetWriter canApplyOutputSettings:audioCompressionSettings forMediaType:AVMediaTypeAudio]) {
-//        // Intialize asset writer audio input with the above created settings dictionary
-//        _assetWriterAudioIn = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeAudio outputSettings:audioCompressionSettings];
-//        _assetWriterAudioIn.expectsMediaDataInRealTime = YES;
-//
-//        // Add asset writer input to asset writer
-//        if ([_assetWriter canAddInput:_assetWriterAudioIn]) {
-//            [_assetWriter addInput:_assetWriterAudioIn];
-//        } else {
-//            DDLogError(@"Couldn't add asset writer audio input.");
-//            return NO;
-//        }
-//    } else {
-//        DDLogError(@"Couldn't apply audio output settings.");
-//        return NO;
-//    }
-//
-//    return YES;
-//}
+
+- (BOOL)setupAssetWriterAudioInput:(CMFormatDescriptionRef)currentFormatDescription {
+    // Create audio output settings dictionary which would be used to configure asset writer input
+    const AudioStreamBasicDescription *currentASBD = CMAudioFormatDescriptionGetStreamBasicDescription(currentFormatDescription);
+    size_t aclSize = 0;
+    const AudioChannelLayout *currentChannelLayout = CMAudioFormatDescriptionGetChannelLayout(currentFormatDescription, &aclSize);
+
+    NSData *currentChannelLayoutData = nil;
+    // AVChannelLayoutKey must be specified, but if we don't know any better give an empty data and let AVAssetWriter decide.
+    if ( currentChannelLayout && aclSize > 0 )
+        currentChannelLayoutData = [NSData dataWithBytes:currentChannelLayout length:aclSize];
+    else
+        currentChannelLayoutData = [NSData data];
+
+    NSDictionary *audioCompressionSettings = @{AVFormatIDKey : [NSNumber numberWithInteger:kAudioFormatMPEG4AAC],
+                                               AVSampleRateKey : [NSNumber numberWithFloat:currentASBD->mSampleRate],
+                                               AVEncoderBitRatePerChannelKey : [NSNumber numberWithInt:64000],
+                                               AVNumberOfChannelsKey : [NSNumber numberWithInteger:currentASBD->mChannelsPerFrame],
+                                               AVChannelLayoutKey : currentChannelLayoutData};
+
+    if ([_assetWriter canApplyOutputSettings:audioCompressionSettings forMediaType:AVMediaTypeAudio]) {
+        // Intialize asset writer audio input with the above created settings dictionary
+        _assetWriterAudioIn = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeAudio outputSettings:audioCompressionSettings];
+        _assetWriterAudioIn.expectsMediaDataInRealTime = YES;
+
+        // Add asset writer input to asset writer
+        if ([_assetWriter canAddInput:_assetWriterAudioIn]) {
+            [_assetWriter addInput:_assetWriterAudioIn];
+        } else {
+            DDLogError(@"Couldn't add asset writer audio input.");
+            return NO;
+        }
+    } else {
+        DDLogError(@"Couldn't apply audio output settings.");
+        return NO;
+    }
+
+    return YES;
+}
 
 - (BOOL)setupAssetWriterVideoInput:(CMFormatDescriptionRef)currentFormatDescription {
     // Create video output settings dictionary which would be used to configure asset writer input
@@ -277,7 +281,7 @@
         KFVideoFrame *videoFrame = (KFVideoFrame*)frame;
         [_hlsWriter processEncodedData:videoFrame.data presentationTimestamp:videoFrame.pts streamIndex:0 isKeyFrame:videoFrame.isKeyFrame];
     } else if (encoder == _aacEncoder) {
-        //        [_hlsWriter processEncodedData:frame.data presentationTimestamp:frame.pts streamIndex:1 isKeyFrame:NO];
+       [_hlsWriter processEncodedData:frame.data presentationTimestamp:frame.pts streamIndex:1 isKeyFrame:NO];
     }
 }
 
@@ -301,7 +305,7 @@
         
         [_h264Encoder encodeSampleBuffer:sampleBuffer];
     } else if (connection == _audioConnection) {
-        //        [_aacEncoder encodeSampleBuffer:sampleBuffer];
+        [_aacEncoder encodeSampleBuffer:sampleBuffer];
     }
     
     // pass frame to disk
@@ -316,11 +320,11 @@
                     if ([self inputsReadyToRecord])
                         [self writeSampleBuffer:sampleBuffer ofType:AVMediaTypeVideo];
                 } else if (connection == _audioConnection) {
-                    //                    if (!_readyToRecordAudio)
-                    //                        _readyToRecordAudio = [self setupAssetWriterAudioInput:CMSampleBufferGetFormatDescription(sampleBuffer)];
-                    //
-                    //                    if ([self inputsReadyToRecord])
-                    //                        [self writeSampleBuffer:sampleBuffer ofType:AVMediaTypeAudio];
+                    if (!_readyToRecordAudio)
+                        _readyToRecordAudio = [self setupAssetWriterAudioInput:CMSampleBufferGetFormatDescription(sampleBuffer)];
+                    
+                    if ([self inputsReadyToRecord])
+                        [self writeSampleBuffer:sampleBuffer ofType:AVMediaTypeAudio];
                 }
             }
             
@@ -445,13 +449,13 @@
                 }
             }
         }
-        //        else if (mediaType == AVMediaTypeAudio) {
-        //            if (_assetWriterAudioIn.readyForMoreMediaData) {
-        //                if (![_assetWriterAudioIn appendSampleBuffer:sampleBuffer]) {
-        //                    DDLogError(@"Error writing audio buffer");
-        //                }
-        //            }
-        //        }
+                else if (mediaType == AVMediaTypeAudio) {
+                    if (_assetWriterAudioIn.readyForMoreMediaData) {
+                        if (![_assetWriterAudioIn appendSampleBuffer:sampleBuffer]) {
+                            DDLogError(@"Error writing audio buffer");
+                        }
+                    }
+                }
     }
     
     if (_assetWriter.status == AVAssetWriterStatusFailed) {
@@ -587,7 +591,7 @@
                 }
                 
                 _readyToRecordVideo = NO;
-                //                _readyToRecordAudio = NO;
+                _readyToRecordAudio = NO;
                 _assetWriter = nil;
             }];
         });
@@ -693,7 +697,7 @@
         if (newBitrate < minBitrate) {
             newBitrate = minBitrate;
         }
-        double newVideoBitrate = newBitrate;// - self.aacEncoder.bitrate;
+        double newVideoBitrate = _withAudio ? newBitrate : newBitrate - self.aacEncoder.bitrate;
         
         DDLogVerbose(@"old video bitrate: %lu, new video bitrate: %f", (unsigned long)self.h264Encoder.bitrate, newVideoBitrate);
         

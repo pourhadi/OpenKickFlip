@@ -55,6 +55,8 @@
 
 @property (nonatomic, weak) id<KFRecorderDelegate> delegate;
 
+- (id)initWithAudio:(BOOL)withAudio;
+
 - (void) startRecording;
 - (void) stopRecording;
 
