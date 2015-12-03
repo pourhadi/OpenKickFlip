@@ -1,15 +1,15 @@
 Pod::Spec.new do |s|
   s.name         = "OpenKickFlip"
-  s.version      = "1.4"
+  s.version      = "1.5"
   s.summary      = "The OpenKickflip platform provides a complete video broadcasting solution for your iOS 
 application. Based on Chris' KickFlip."
-  s.homepage     = "https://github.com/imton/openkickflip-ios-sdk"
+  s.homepage     = "https://github.com/pourhadi/OpenKickFlip.git"
 
   s.license      = 'Apache License, Version 2.0'
 
   s.author       = { "Gaston Morixe" => "gaston@black.uy", "Chris Ballinger" => "chris@openwatch.net" }
   s.platform     = :ios, '7.0'
-  s.source       = { :git => "https://github.com/imton/openkickflip-ios-sdk.git", :tag => s.version.to_s }
+  s.source       = { :git => "https://github.com/pourhadi/OpenKickFlip.git", :tag => s.version.to_s }
 
   s.source_files  = 'OpenKickFlip', 'OpenKickFlip/**/*.{h,m,mm,cpp}'
   s.resources = 'OpenKickFlip/Resources/*'
