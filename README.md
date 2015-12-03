@@ -1,18 +1,36 @@
-# Kickflip SDK for iOS
+# OpenKickFlip SDK for iOS
 
-The [Kickflip](http://kickflip.io) platform provides a complete video broadcasting solution for your iOS application. You can use our pre-built `KFBroadcastViewController` to stream live video to your Kickflip account starting with one line of code. Check out our [Kickflip iOS SDK example](https://github.com/Kickflip/kickflip-ios-example) to get started.
+(WARNING. AUDIO STREAMING HAS BEEN DISABLED FOR MY OWN PURPOSES.)
+
+This is a fork from the original [Kickflip](http://kickflip.io) opensource project and commercial platform.
+
+OpenKickFlip taks the best of the awesome Kickflip and allows you to directly upload the streaming to your own s3 bucket.
+
+OpenKickFlip provides a complete video broadcasting solution for your iOS application. You can use our pre-built `KFBroadcastViewController` to stream live video with one line of code. 
 
 ## Quickstart
 
-The quickest way to get started will be to fork the [Kickflip iOS SDK example](https://github.com/Kickflip/kickflip-ios-example). Launch Kickflip's default `KFBroadcastViewController` to instantly stream live video from your application:
-
 ```objc
-#import "Kickflip.h"
-// Call setup as soon as possible so your users can start streaming right away
-[Kickflip setupWithAPIKey:@"API_KEY" secret:@"API_SECRET"];
+#import <OpenKickFlip/OpenKickFlip.h>
+
 ...
-- (void) broadcastButtonPressed:(id)sender {
-	[Kickflip presentBroadcasterFromViewController:self ready:^(KFStream *stream) {
+
+- (void) broadcastButtonPressed {
+    
+    KFS3Stream* s3Config     = [[KFS3Stream alloc] init];
+    NSString* random         = [KFS3Stream randomStringWithLength:6];
+    s3Config.bucketName      = [@"***YOUR BUCKET NAME HERE***/" stringByAppendingPathComponent:random];
+    s3Config.awsAccessKey    = @"*** YOUR AWS TEMPORAL TOKEN***";
+    s3Config.awsSecretKey    = @"*** YOUR AWS TEMPORAL SECRET TOKEN***";
+    s3Config.awsSessionToken = @"*** YOUR AWS TEMPORAL SESSION TOEKN***";
+    s3Config.awsRegion = @"*** YOUR S3 BUCKET REGION ****"; // i.e. "us-east-1"
+    s3Config.awsPrefix = @""; /// leave this like this
+    NSDate* date = [[NSDate alloc] initWithTimeIntervalSince1970:1443486098];  /// *** YOUR S3 TEMPORAL TOKEN EXPIRATIONS IN EPOCH TIME ***
+    s3Config.awsExpirationDate = date;
+    
+    [OpenKickflip presentBroadcasterFromViewController:self
+                                        s3Configuration:s3Config
+                                                 ready:^(KFStream *stream) {
         if (stream.streamURL) {
             NSLog(@"Stream is ready at URL: %@", stream.streamURL);
         }
@@ -24,6 +42,14 @@ The quickest way to get started will be to fork the [Kickflip iOS SDK example](h
         }
     }];
 }
+
+```
+
+## How do I get an AWS S3 Temporal Upload Token?
+
+Using the [aws-sdk-ruby](https://github.com/aws/aws-sdk-ruby) you can do this by
+```ruby
+    Aws::STS::Client.new(region: '***REGION NAME***', credentials: Aws::Credentials.new('***AWS IAM TOKEN WITH ACCESS TO THE BUCKET***', '***AWS IAM TOKEN SECRET***')).get_session_token(duration_seconds: 1.day)
 ```
 
 ## Cocoapods Setup
@@ -32,7 +58,7 @@ You'll need to install [Cocoapods](http://cocoapods.org) first.
     
 Add the following line to your `Podfile`:
 
-    pod 'Kickflip'
+    pod 'OpenKickFlip'
 
 Then run Cocoapods to install all of the dependencies:
 
@@ -42,8 +68,8 @@ As with all projects that depend on Cocoapods, make sure to open the new `.xcwor
     
 ## Documentation
 
-For a closer look at what you do with Kickflip, check out our [iOS Documentation](https://github.com/Kickflip/kickflip-docs/tree/master/ios) and [iOS API Reference](http://cocoadocs.org/docsets/Kickflip/). We also have some [tutorials](https://github.com/Kickflip/kickflip-docs) to help you get started.
-    
+TODO
+
 ## Screenshots
 
 [![kickflip app screenshot](https://i.imgur.com/QPtggd9m.jpg)](https://i.imgur.com/QPtggd9.png)
@@ -54,6 +80,8 @@ For a closer look at what you do with Kickflip, check out our [iOS Documentation
 
     
 ## License
+
+TODO TOASK TOREV
 
 Apache 2.0
 

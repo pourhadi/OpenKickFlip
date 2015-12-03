@@ -42,7 +42,7 @@
         AVVideoCompressionPropertiesKey: @{
              AVVideoAverageBitRateKey: @(self.bitrate),
              AVVideoMaxKeyFrameIntervalKey: @(30),
-             AVVideoProfileLevelKey: [Kickflip h264Profile],
+             AVVideoProfileLevelKey: AVVideoProfileLevelH264BaselineAutoLevel,
              AVVideoAllowFrameReorderingKey: @NO,
         }
     };

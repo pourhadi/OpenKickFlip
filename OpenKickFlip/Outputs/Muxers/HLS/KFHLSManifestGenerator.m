@@ -98,11 +98,11 @@
     int videoHeight;
     
     if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation)) {
-        videoWidth = [Kickflip resolutionHeight];
-        videoHeight = [Kickflip resolutionWidth];
+//        videoWidth = [Kickflip resolutionHeight];
+//        videoHeight = [Kickflip resolutionWidth];
     } else {
-        videoWidth = [Kickflip resolutionWidth];
-        videoHeight = [Kickflip resolutionHeight];
+//        videoWidth = [Kickflip resolutionWidth];
+//        videoHeight = [Kickflip resolutionHeight];
     }
     
     return [NSString stringWithFormat:@"#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=556000,CODECS=\"avc1.77.21,mp4a.40.2\",RESOLUTION=%dx%d\n%@.m3u8",

@@ -110,13 +110,7 @@ static NSString * const KFStreamStateKey = @"KFStreamStateKey";
 }
 
 - (BOOL) isLive {
-    if (self.startDate && !self.finishDate) {
-        return YES;
-    }
-    if ([self.startDate isEqualToDate:self.finishDate]) {
-        return YES;
-    }
-    return NO;
+    return YES;
 }
 
 @end
